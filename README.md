@@ -22,11 +22,7 @@ Simple personal project management tool.
 
 ## Dependencies
 
-Apart from the python packages listed in `requirements.txt` (install via `pip install -r requirements.txt`), this program requires Qt6. The package to be installed is called `qt6-base` (at least on Debian and Manjaro). You can install it in the following way:
-
-#### Debian
-
-`sudo apt install qt6-base`
+Apart from the python packages listed in `requirements.txt` (install via `pip install -r requirements.txt`), this program requires Qt6. The package to be installed is called `qt6-base` (at least on Manjaro). You can install it in the following way:
 
 #### Manjaro
 
