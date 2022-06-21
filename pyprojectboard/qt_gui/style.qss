@@ -1,0 +1,50 @@
+* {
+ font-size: 20px;
+}
+
+QMainWindow {
+     background-color: #e0e0e0;
+}
+QProgressBar:horizontal {
+    border: 1px solid gray;
+    border-radius: 5px;
+    background: white;
+    padding: 1px;
+    text-align: center;
+    margin-right: 4ex;
+}
+QProgressBar::chunk:horizontal {
+    background: lightgreen;
+    margin-right: 2px; /* space */
+    margin-left: 2px; /* space */
+    width: 8px;
+}
+
+QPushButton#projectbutton-finished {
+    /*border: 0px;*/
+    background-color: #008800;
+    color: white;
+}
+
+QPushButton#projectbutton-started {
+    /*border: 0px;*/
+    background-color: yellow;
+    color: black;
+}
+
+QPushButton#projectbutton-tobedetermined {
+    /*border: 0px;*/
+    background-color: grey;
+    color: white;
+}
+
+QPushButton#projectbutton-discarded {
+    /*border: 0px;*/
+    background-color: red;
+    color: white;
+}
+.big_button {
+  height: 55px;
+}
+
+
