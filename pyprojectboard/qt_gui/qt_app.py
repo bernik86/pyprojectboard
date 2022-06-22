@@ -116,7 +116,7 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_projectboard(self):
-        directory = os.path.expanduser('~/Documents/projectboards/')
+        directory = os.path.expanduser('~/')
         options = QFileDialog.DontConfirmOverwrite
         file_name = QFileDialog.getSaveFileName(caption='Choose file',
                                                 dir=directory,
