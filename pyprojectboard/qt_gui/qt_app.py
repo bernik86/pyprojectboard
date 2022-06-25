@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -55,7 +55,6 @@ class MainWindow(QMainWindow):
 
         self.setMinimumWidth(1200)
         self.setMinimumHeight(768)
-        # self.window.showMaximized()
 
         self.tabs = QTabWidget(self)
         self.tabs.setSizePolicy(QSizePolicy.Expanding,
@@ -63,6 +62,15 @@ class MainWindow(QMainWindow):
 
         self.settings_page = self.init_settings_page()
         self.tabs.addTab(self.settings_page, r"⚙")
+
+        try:
+            size = self.settings_page.settings['[GEOM]'].strip().split('-')
+            pos_x, pos_y = int(size[0]), int(size[1])
+            width, height = int(size[2]), int(size[3])
+        except KeyError:
+            pos_x, pos_y = 300, 150
+            width, height = 1200, 768
+        self.setGeometry(pos_x, pos_y, width, height)
 
         for item in self.settings_page.settings['@OPEN']:
             pb_name, file_name = item.rsplit(':', 1)
@@ -75,8 +83,23 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.tabs)
 
-    def init_settings_page(self):
+    def resizeEvent(self, event):
+        # pylint: disable=invalid-name
+        self.save_geometry()
+        QMainWindow.resizeEvent(self, event)
 
+    def closeEvent(self, event):
+        # pylint: disable=invalid-name
+        self.save_geometry()
+        QMainWindow.closeEvent(self, event)
+
+    def save_geometry(self):
+        geom = self.geometry()
+        geom_str = f"{geom.x()}-{geom.y()}-{geom.width()}-{geom.height()}"
+        self.settings_page.settings['[GEOM]'] = geom_str
+        save_settings(self.settings_page.settings)
+
+    def init_settings_page(self):
         settings_page = create_settings_page()
         add_button = settings_page.add_button
         rm_button = settings_page.remove_button

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -95,9 +95,15 @@ def load_settings() -> dict:
             settings[key] = []
             item_type = 'list'
             continue
+        elif line.strip().startswith('['):
+            key = line.strip()
+            item_type = 'string'
+            continue
 
         if item_type == 'list':
             settings[key].append(line.strip())
+        elif item_type == 'string':
+            settings[key] = line.strip()
 
     return settings
 
@@ -108,10 +114,12 @@ def save_settings(settings: dict) -> None:
     output = []
 
     for key in settings:
+        output.append(key)
         if key.startswith('@'):
-            output.append(key)
             for item in settings[key]:
                 output.append(item)
+        else:
+            output.append(settings[key])
 
     output = '\n'.join(output)
     with open(config_fn, 'wt', encoding='utf-8') as output_file:
