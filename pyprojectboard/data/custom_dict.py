@@ -51,6 +51,7 @@ class OrderableDict(OrderedDict):
     def values(self):
         for key in self.order:
             yield self[key]
+            # yield super().__getitem__(key)
 
     def pop(self, key):
         item = super().pop(key)
