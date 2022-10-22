@@ -54,8 +54,8 @@ class MainWindow(QMainWindow):
             self.setStyleSheet(style)
 
         self.setMinimumWidth(1200)
-        self.setMinimumHeight(768)
-
+        self.setMinimumHeight(800)
+        self.setWindowTitle("PyProjectBoard V1.0")
         self.tabs = QTabWidget(self)
         self.tabs.setSizePolicy(QSizePolicy.Expanding,
                                 QSizePolicy.Expanding)
@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
             width, height = int(size[2]), int(size[3])
         except KeyError:
             pos_x, pos_y = 300, 150
-            width, height = 1200, 768
+            width, height = 1200, 800
         self.setGeometry(pos_x, pos_y, width, height)
 
         for item in self.settings_page.settings['@OPEN']:
@@ -139,7 +139,8 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def add_projectboard(self):
-        directory = os.path.expanduser('~/')
+        directory = self.settings_page.settings.get('[PBDIR]', '~/')
+        directory = os.path.expanduser(directory)
         options = QFileDialog.DontConfirmOverwrite
         file_name = QFileDialog.getSaveFileName(caption='Choose file',
                                                 dir=directory,

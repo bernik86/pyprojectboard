@@ -47,4 +47,6 @@ QPushButton#projectbutton-discarded {
   height: 55px;
 }
 
-
+QScrollBar::handle {
+    background-color: black;
+}

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -21,12 +21,12 @@
 #
 import os
 
-# pylint: disable=import-error
+# pylint: disable=import-error, no-name-in-module
 from PySide6.QtWidgets import QApplication
 from qt_material import apply_stylesheet
-# pylint: enable=import-error
 
 from pyprojectboard.qt_gui.qt_app import MainWindow
+# pylint: enable=import-error, no-name-in-module
 
 
 def main():

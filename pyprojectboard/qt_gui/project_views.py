@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -29,9 +29,10 @@ from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QVBoxLayout
 from PySide6.QtWidgets import QScrollArea, QPushButton
-from PySide6.QtWidgets import QProgressBar
+from PySide6.QtWidgets import QProgressBar, QStackedWidget
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QDate, Qt
+from PySide6.QtWidgets import QMenu
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
@@ -98,19 +99,29 @@ class ProjectEntry(QWidget):
 
         self.layout.setSpacing(20)
 
+        self.menu = QMenu(self)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.on_context_menu)
+
     def update_fields(self) -> None:
         if self.project['duedate'] != '':
             dd_label = 'Duedate: ' + self.project['duedate']
             self.duedate.setText(dd_label)
         self.progress.setValue(self.project['progress'])
 
+    def on_context_menu(self, pos):
+        self.menu.exec_(self.mapToGlobal(pos))
 
-class PageManager(QScrollArea):
+
+class PageManager(QStackedWidget):
     def __init__(self, project_list: ProjectList):
         super().__init__()
         self.views = Views(projectboard=project_list)
-        self.setWidget(self.views.projectboard_view)
-        self.setWidgetResizable(True)
+        # self.setWidget(self.views.projectboard_view)
+        self.addWidget(self.views.projectboard_view)
+        self.addWidget(self.views.project_view)
+        self.addWidget(self.views.task_view)
+        # self.setWidgetResizable(True)
         self.connect_views_buttons()
         self.current_pid = None
         self.current_tid = None
@@ -161,9 +172,10 @@ class PageManager(QScrollArea):
     def switch_from_project_view_to_projectlist_view(self) -> None:
         self.current_pid = None
         self._sender = None
-        self.views.project_view = self.takeWidget()
+        # self.views.project_view = self.takeWidget()
         self.views.project_view.reset()
-        self.setWidget(self.views.projectboard_view)
+        # self.setWidget(self.views.projectboard_view)
+        self.setCurrentWidget(self.views.projectboard_view)
 
     def switch_from_projectlist_view_to_project_view(
             self,
@@ -179,13 +191,14 @@ class PageManager(QScrollArea):
             tasks.append(task_dict)
 
         self.views.project_view.set_data(project, tasks)
-        for child in self.views.project_view.children():
+        for child in self.views.project_view.qsa_widg.children():
             if isinstance(child, TaskEntry):
                 child.button.clicked.connect(self.task_button_clicked)
                 self.add_task_menu(child)
 
-        self.views.projectboard_view = self.takeWidget()
-        self.setWidget(self.views.project_view)
+        # self.views.projectboard_view = self.takeWidget()
+        # self.setWidget(self.views.project_view)
+        self.setCurrentWidget(self.views.project_view)
 
     @Slot()
     def projectlist_view_add_clicked(self):
@@ -225,6 +238,7 @@ class PageManager(QScrollArea):
         # self.project_list.project(self.current_pid, project, 'set')
         button_state = 'projectbutton-' + project['state'].replace(' ', '')
         self._sender.project_name.setObjectName(button_state)
+        self._sender.project_name.setStyle(self._sender.project_name.style())
         self._sender.update_fields()
         self.switch_from_project_view_to_projectlist_view()
 
@@ -259,8 +273,9 @@ class PageManager(QScrollArea):
 
     def switch_from_project_view_to_task_view(self, task: dict) -> None:
         self.views.task_view.set_data(task)
-        self.views.project_view = self.takeWidget()
-        self.setWidget(self.views.task_view)
+        # self.views.project_view = self.takeWidget()
+        # self.setWidget(self.views.task_view)
+        self.setCurrentWidget(self.views.task_view)
 
     def switch_from_task_view_to_project_view(self) -> None:
         data = {}
@@ -269,8 +284,9 @@ class PageManager(QScrollArea):
         self._task_sender = None
         self.current_tid = None
         self.views.task_view.state.setCurrentText(State.TBD.value)
-        self.views.task_view = self.takeWidget()
-        self.setWidget(self.views.project_view)
+        # self.views.task_view = self.takeWidget()
+        # self.setWidget(self.views.project_view)
+        self.setCurrentWidget(self.views.project_view)
 
     @Slot()
     def task_button_clicked(self):
@@ -290,6 +306,7 @@ class PageManager(QScrollArea):
                                self.current_pid, task, 'set')
         button_state = 'projectbutton-' + task['state'].replace(' ', '')
         self._task_sender.button.setObjectName(button_state)
+        self._task_sender.button.setStyle(self._task_sender.button.style())
         self._task_sender.update_fields()
         self.switch_from_task_view_to_project_view()
 
@@ -324,19 +341,17 @@ class PageManager(QScrollArea):
 
     def add_task_menu(self, task_entry: TaskEntry) -> None:
 
+        tid = task_entry.task['_id']
+
         @Slot()
         def move_task(moveby: int):
-            project_view = self.views.project_view
-            layout = project_view.layout_right
+            layout = self.views.project_view.layout_right
             self.project_list.project(self.current_pid, project := {})
             task_ids = project['task_ids']
             n_tasks = len(task_ids)
-            tid = task_entry.task['_id']
-            # tid = self.current_tid
             idx = task_ids.index(tid)
-            idx2 = idx - moveby
 
-            idx2 = max(idx2, 0)
+            idx2 = max(idx - moveby, 0)
             idx2 = min(idx2, n_tasks - 1)
 
             if idx2 != idx:
@@ -349,13 +364,34 @@ class PageManager(QScrollArea):
         def set_task_state(new_state: str):
             task_entry.task['state'] = new_state
             state_name = task_entry.task['state'].replace(' ', '')
-            btn_name = 'projectbutton-' + state_name
-            task_entry.button.setObjectName(btn_name)
+            task_entry.button.setObjectName('projectbutton-' + state_name)
             task_entry.button.setStyle(task_entry.button.style())
-            self.project_list.task(task_entry.task['_id'],
+            self.project_list.task(tid,
                                    self.current_pid,
                                    dict(task_entry.task), 'set')
             self.project_list.project(self.current_pid, {}, 'prg')
+
+        @Slot()
+        def move_to_project(new_project: str, copy=False):
+            data = {'name': new_project}
+            self.project_list.project('', data, 'fnd')
+            data['new_pid'] = data['pid']
+            if data['new_pid'] is None:
+                data['new_pid'] = self.current_pid
+            if copy:
+                new_task = dict(task_entry.task)
+                new_task.pop('_id')
+                new_task['app'] = True
+                self.project_list.task('', data['new_pid'], new_task, 'new')
+                if data['new_pid'] == self.current_pid:
+                    new_task_entry = TaskEntry(new_task)
+                    self.views.project_view.layout_right.addWidget(new_task_entry)
+                    new_task_entry.button.clicked.connect(self.task_button_clicked)
+                    self.add_task_menu(new_task_entry)
+            else:
+                self.project_list.task(tid, self.current_pid, data, 'chp')
+                self.views.project_view.layout_right.removeWidget(task_entry)
+                task_entry.deleteLater()
 
         menu_entries = (("Move to top", partial(move_task, 50000)),
                         ("Move up 5 places", partial(move_task, 5)),
@@ -366,12 +402,29 @@ class PageManager(QScrollArea):
                          partial(set_task_state, State.FINISHED.value)),
                         ("----------------------------------", None),
                         ("Move down 5 places", partial(move_task, -5)),
-                        ("Move to bottom", partial(move_task, -50000)))
+                        ("Move to bottom", partial(move_task, -50000)),
+                        ("----------------------------------", None),
+                        ("Duplicate task", partial(move_to_project, None, True)))
 
         for entry, connect in menu_entries:
             task_entry.menu.addAction(add_action(entry,
                                                  task_entry,
                                                  connect))
+
+        mv_menu = task_entry.menu.addMenu("Move to other project")
+        cp_menu = task_entry.menu.addMenu("Copy to other project")
+        for pid in self.project_list.get_ids():
+            if pid == self.current_pid:
+                continue
+            self.project_list.project(pid, project := {})
+            mv_menu.addAction(add_action(project['name'],
+                                         task_entry.menu,
+                                         partial(move_to_project, project['name'])))
+            cp_menu.addAction(add_action(project['name'],
+                                         task_entry.menu,
+                                         partial(move_to_project,
+                                                 project['name'],
+                                                 True)))
 
         task_entry.move_up.clicked.connect(partial(move_task, 1))
         task_entry.move_down.clicked.connect(partial(move_task, -1))
@@ -386,15 +439,47 @@ class PageManager(QScrollArea):
             layout = self.views.projectboard_view.layout
             n_projects = len(self.project_list.get_ids())
             idx = layout.indexOf(project_entry)
-            idx2 = idx + moveby
+            idx2 = idx - moveby
 
-            if 1 < idx <= n_projects + 1 and 1 < idx2 <= n_projects + 1:
-                self.project_list.project(pid, {'moveby': moveby}, 'mov')
+            idx2 = max(idx2, 2)
+            idx2 = min(idx2, n_projects + 1)
+
+            if idx2 != idx:
+                self.project_list.project(pid, {'moveby': -moveby}, 'mov')
                 widget = layout.takeAt(idx)
                 layout.insertItem(idx2, widget)
 
-        project_entry.move_up.clicked.connect(partial(move_project, -1))
-        project_entry.move_down.clicked.connect(partial(move_project, 1))
+        @Slot()
+        def set_state(new_state: str):
+            project_entry.project['state'] = new_state
+            state_name = project_entry.project['state'].replace(' ', '')
+            btn_name = 'projectbutton-' + state_name
+            project_entry.project_name.setObjectName(btn_name)
+            project_entry.project_name.setStyle(project_entry.project_name.style())
+            self.project_list.project(project_entry.project['_id'],
+                                      dict(project_entry.project), 'set')
+            pid = project_entry.project['_id']
+            self.project_list.project(pid, prg := {}, 'prg')
+            project_entry.progress.setValue(prg['progress'])
+
+        menu_entries = (("Move to top", partial(move_project, 50000)),
+                        ("Move up 5 places", partial(move_project, 5)),
+                        ("----------------------------------", None),
+                        ("Set state: started",
+                         partial(set_state, State.STARTED.value)),
+                        ("Set state: finished",
+                         partial(set_state, State.FINISHED.value)),
+                        ("----------------------------------", None),
+                        ("Move down 5 places", partial(move_project, -5)),
+                        ("Move to bottom", partial(move_project, -50000)))
+
+        for entry, connect in menu_entries:
+            project_entry.menu.addAction(add_action(entry,
+                                                    project_entry,
+                                                    connect))
+
+        project_entry.move_up.clicked.connect(partial(move_project, 1))
+        project_entry.move_down.clicked.connect(partial(move_project, -1))
 
 
 class ProjectListView(QWidget):
@@ -453,13 +538,22 @@ class ProjectView(QWidget):
         self.layout.addLayout(state_layout)
         self.layout.addWidget(self.project_desc)
 
-        self.layout_right = QVBoxLayout()
+        self.qsa_widg = QWidget()
+        self.qsa = QScrollArea()
+        # self.qsa_widg.setLayout(self.layout_right)
+        self.qsa.setWidget(self.qsa_widg)
+        self.qsa.setWidgetResizable(True)
+        # self.qsa.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+
+        # self.layout_right = QVBoxLayout()
+        self.layout_right = QVBoxLayout(self.qsa_widg)
         self.layout_right.addLayout(label_plus_stretch('Tasks'))
         self.layout_right.setAlignment(Qt.AlignTop)
 
         self.h_layout = QHBoxLayout(self)
-        self.h_layout.addLayout(self.layout, 8)
-        self.h_layout.addLayout(self.layout_right, 5)
+        self.h_layout.addLayout(self.layout, 1)
+        # self.h_layout.addLayout(self.layout_right, 5)
+        self.h_layout.addWidget(self.qsa, 1)
 
         self.update_date = False
 
@@ -509,7 +603,7 @@ class ProjectView(QWidget):
 
     def reset(self) -> None:
         self.set_data(Project().as_dict(), [])
-        for child in self.children():
+        for child in self.qsa_widg.children():
             if isinstance(child, TaskEntry):
                 self.layout_right.removeWidget(child)
                 child.deleteLater()

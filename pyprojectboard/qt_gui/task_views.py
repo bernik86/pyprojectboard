@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -64,10 +64,9 @@ class TaskEntry(QWidget):
         self.move_down.setMaximumWidth(25)
         self.move_down.setObjectName('arrow')
 
+        self.layout.addWidget(self.button, 10)
         self.layout.addWidget(self.move_up, 1)
         self.layout.addWidget(self.move_down, 1)
-
-        self.layout.addWidget(self.button, 10)
 
         self.menu = QMenu(self)
         self.setContextMenuPolicy(Qt.CustomContextMenu)

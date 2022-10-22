@@ -83,7 +83,8 @@ def load_settings() -> dict:
     if not os.path.isfile(config_fn):
         if not os.path.exists(config_path):
             os.makedirs(config_path)
-        open(config, 'at').close()
+        with open(config, 'at', encoding='utf-8'):
+            pass
 
     with open(config, 'rt', encoding='utf-8') as conf_file:
         lines = conf_file.readlines()
@@ -95,7 +96,7 @@ def load_settings() -> dict:
             settings[key] = []
             item_type = 'list'
             continue
-        elif line.strip().startswith('['):
+        if line.strip().startswith('['):
             key = line.strip()
             item_type = 'string'
             continue

@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,13 +23,11 @@ import abc
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 import json
-from typing import TypeVar
 
 from ..qt_gui.elements import finished_states
 
 from .custom_dict import OrderableDict
 
-ProjectList = TypeVar('ProjectList')
 ENC = 'utf-8'
 
 
@@ -101,6 +99,7 @@ class ProjectListInterface(abc.ABC):
                     * 'mov' ->  move project; data needs to contain key
                                 'moveby', the value of which determines
                                 how far the project should be moved.
+                    * 'fnd' ->  find project id based given its name
         """
 
     @abc.abstractmethod
@@ -231,6 +230,7 @@ class ProjectList(ProjectListInterface):
                     * 'mov' ->  move project; data needs to contain key
                                 'moveby', the value of which determines
                                 how far the project should be moved.
+                    * 'fnd' ->  find project id based given its name
         """
 
         if action == 'get':
@@ -259,20 +259,27 @@ class ProjectList(ProjectListInterface):
         elif action == 'prg':
             tids = self._projects[pid].task_ids
             n_tasks = len(tids)
-            if n_tasks > 0:
-                n_finished = sum(1 for tid in tids
-                                 if self._tasks[tid].state in finished_states)
-                data['progress'] = n_finished / n_tasks * 100
-            else:
-                prg = self._projects[pid].state in finished_states
-                data['progress'] = prg * 100
+            n_finished = sum(1 for tid in tids
+                             if self._tasks[tid].state in finished_states)
+            prj_fin = self._projects[pid].state in finished_states
+            prg = n_finished / n_tasks if n_tasks else prj_fin
+            prg = prg * 100
+            data['progress'] = prg
             try:
                 self._projects[pid].progress = data['progress']
-            except KeyError:
-                print('Error: project ' + pid + 'does not exist!')
+            except KeyError as err:
+                print(f"KeyError: key not found: {err}!")
 
         elif action == 'mov':
             self._projects.move(pid, data['moveby'])
+
+        elif action == 'fnd':
+            pid = (pid for pid in self._projects
+                   if self._projects[pid].name == data['name'])
+            try:
+                data['pid'] = next(pid)
+            except StopIteration:
+                data['pid'] = None
 
     def task(self, tid: str, pid: str, data: dict, action='get') -> None:
         """Perform action on project data.
@@ -287,6 +294,7 @@ class ProjectList(ProjectListInterface):
                     * 'new' ->  create new (empty) project and return
                                 data as dict
                     * 'del' ->  delete task
+                    * 'chp' ->  change project the task belongs to
         """
         if action == 'get':
             data.update(self._tasks[tid].as_dict())
@@ -303,7 +311,11 @@ class ProjectList(ProjectListInterface):
             if len(data):
                 new_task.__dict__.update(data)
             self._tasks[new_task.id] = new_task
-            self._projects[pid].task_ids.insert(0, new_task.id)
+            if data.get('app', False):
+                data.pop('app')
+                self._projects[pid].task_ids.append(new_task.id)
+            else:
+                self._projects[pid].task_ids.insert(0, new_task.id)
             data.update(new_task.as_dict())
         elif action == 'del':
             try:
@@ -313,6 +325,9 @@ class ProjectList(ProjectListInterface):
             else:
                 task = self._tasks.pop(tid)
                 data.update(task.as_dict())
+        elif action == 'chp':
+            self._projects[pid].task_ids.remove(tid)
+            self._projects[data['new_pid']].task_ids.append(tid)
 
 
 @dataclass
