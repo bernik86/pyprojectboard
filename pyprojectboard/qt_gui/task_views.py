@@ -31,6 +31,7 @@ from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QPushButton
 from PySide6.QtWidgets import QWidget
 from PySide6.QtWidgets import QMenu
+
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
@@ -44,25 +45,24 @@ from .elements import State
 
 
 class TaskEntry(QWidget):
-
     def __init__(self, task: dict):
         super().__init__()
-        label = task['name'] + '\n' + 'Duedate: ' + task['duedate']
+        label = task["name"] + "\n" + "Duedate: " + task["duedate"]
         self.button = QPushButton(label)
         self.button.setUpdatesEnabled(True)
-        btn_name = 'projectbutton-' + task['state'].replace(' ', '')
+        btn_name = "projectbutton-" + task["state"].replace(" ", "")
         self.button.setObjectName(btn_name)
-        self.button.setProperty('class', 'big_button')
+        self.button.setProperty("class", "big_button")
         self.layout = QHBoxLayout(self)
 
-        self.move_up = QPushButton('⇧')
-        self.move_up.setProperty('class', 'big_button')
+        self.move_up = QPushButton("⇧")
+        self.move_up.setProperty("class", "big_button")
         self.move_up.setMaximumWidth(25)
-        self.move_up.setObjectName('arrow')
-        self.move_down = QPushButton('⇩')
-        self.move_down.setProperty('class', 'big_button')
+        self.move_up.setObjectName("arrow")
+        self.move_down = QPushButton("⇩")
+        self.move_down.setProperty("class", "big_button")
         self.move_down.setMaximumWidth(25)
-        self.move_down.setObjectName('arrow')
+        self.move_down.setObjectName("arrow")
 
         self.layout.addWidget(self.button, 10)
         self.layout.addWidget(self.move_up, 1)
@@ -74,7 +74,7 @@ class TaskEntry(QWidget):
         self.task = task
 
     def update_fields(self):
-        label = self.task['name'] + '\nDuedate: ' + self.task['duedate']
+        label = self.task["name"] + "\nDuedate: " + self.task["duedate"]
         self.button.setText(label)
 
     def on_context_menu(self, pos):
@@ -85,7 +85,7 @@ class TaskView(QWidget):
     def __init__(self):
         super().__init__()
 
-        action_buttons = ['&Apply', '&Cancel', '&Delete']
+        action_buttons = ["&Apply", "&Cancel", "&Delete"]
         self.buttons = add_action_buttons(0, 0, 0, action_buttons)
 
         pn_layout, self.project_name = add_name()
@@ -99,7 +99,7 @@ class TaskView(QWidget):
         self.project_desc = add_desc()
 
         self.layout = QVBoxLayout(self)
-        self.layout.addLayout(self.buttons['layout'])
+        self.layout.addLayout(self.buttons["layout"])
         self.layout.addLayout(pn_layout)
         self.layout.addLayout(duedate_layout)
         self.layout.addLayout(state_layout)
@@ -112,26 +112,26 @@ class TaskView(QWidget):
         self.update_date = True
 
     def set_data(self, project: dict):
-        self.project_name.setText(project['name'])
-        self.project_desc.setPlainText(project['description'])
-        self.state.setCurrentText(project['state'])
-        self.created.setText(project['creation_date'])
+        self.project_name.setText(project["name"])
+        self.project_desc.setPlainText(project["description"])
+        self.state.setCurrentText(project["state"])
+        self.created.setText(project["creation_date"])
         date = QDate()
-        if project['duedate'] == '':
+        if project["duedate"] == "":
             date = date.fromString(str(python_date.today()), format=Qt.ISODate)
         else:
-            date = date.fromString(project['duedate'], format=Qt.ISODate)
+            date = date.fromString(project["duedate"], format=Qt.ISODate)
         self.duedate.setDate(date)
         self.update_date = False
 
     def get_data(self) -> dict:
         data = {}
-        data['name'] = self.project_name.text()
-        data['description'] = self.project_desc.toPlainText()
+        data["name"] = self.project_name.text()
+        data["description"] = self.project_desc.toPlainText()
         if self.update_date:
-            data['duedate'] = self.duedate.date().toString(format=Qt.ISODate)
+            data["duedate"] = self.duedate.date().toString(format=Qt.ISODate)
             self.update_date = False
-        data['state'] = self.state.currentText()
+        data["state"] = self.state.currentText()
         self.state.setCurrentText(State.TBD.value)
         # data['creation_date'] = self.created.text()
 

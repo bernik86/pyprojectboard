@@ -31,6 +31,7 @@ from PySide6.QtWidgets import QMessageBox
 from PySide6.QtWidgets import QSizePolicy
 from PySide6.QtWidgets import QMainWindow
 from PySide6.QtCore import Slot
+
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
@@ -42,14 +43,13 @@ from .settings import add_item
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
 
         file_path = os.path.dirname(__file__)
-        style_fn = os.path.join(file_path, 'style.qss')
+        style_fn = os.path.join(file_path, "style.qss")
 
-        with open(style_fn, 'r', encoding='utf-8') as style_file:
+        with open(style_fn, "r", encoding="utf-8") as style_file:
             style = style_file.read()
             self.setStyleSheet(style)
 
@@ -57,14 +57,13 @@ class MainWindow(QMainWindow):
         self.setMinimumHeight(800)
         self.setWindowTitle("PyProjectBoard V1.0")
         self.tabs = QTabWidget(self)
-        self.tabs.setSizePolicy(QSizePolicy.Expanding,
-                                QSizePolicy.Expanding)
+        self.tabs.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.settings_page = self.init_settings_page()
         self.tabs.addTab(self.settings_page, r"⚙")
 
         try:
-            size = self.settings_page.settings['[GEOM]'].strip().split('-')
+            size = self.settings_page.settings["[GEOM]"].strip().split("-")
             pos_x, pos_y = int(size[0]), int(size[1])
             width, height = int(size[2]), int(size[3])
         except KeyError:
@@ -72,8 +71,8 @@ class MainWindow(QMainWindow):
             width, height = 1200, 800
         self.setGeometry(pos_x, pos_y, width, height)
 
-        for item in self.settings_page.settings['@OPEN']:
-            pb_name, file_name = item.rsplit(':', 1)
+        for item in self.settings_page.settings["@OPEN"]:
+            pb_name, file_name = item.rsplit(":", 1)
             projectboard = add_pb_instance(pb_name, file_name, True)
 
             if projectboard is not None:
@@ -96,7 +95,7 @@ class MainWindow(QMainWindow):
     def save_geometry(self):
         geom = self.geometry()
         geom_str = f"{geom.x()}-{geom.y()}-{geom.width()}-{geom.height()}"
-        self.settings_page.settings['[GEOM]'] = geom_str
+        self.settings_page.settings["[GEOM]"] = geom_str
         save_settings(self.settings_page.settings)
 
     def init_settings_page(self):
@@ -119,7 +118,6 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def projectlist_view_close_clicked(self):
-
         idx = self.tabs.currentIndex() - 1
         if idx < 0:
             idx = self.settings_page.list_projectboards.currentRow()
@@ -127,24 +125,24 @@ class MainWindow(QMainWindow):
         if idx > -1:
             page_manager = self.tabs.widget(idx + 1)
             self.settings_page.list_projectboards.takeItem(idx)
-            self.settings_page.settings['@OPEN'].pop(idx)
+            self.settings_page.settings["@OPEN"].pop(idx)
             save_settings(self.settings_page.settings)
             self.tabs.removeTab(idx + 1)
             self.tabs.setCurrentIndex(0)
             page_manager.deleteLater()
 
     def connect_close_button(self, page_manager):
-        button = page_manager.views.projectboard_view.buttons['&Close']
+        button = page_manager.views.projectboard_view.buttons["&Close"]
         button.clicked.connect(self.projectlist_view_close_clicked)
 
     @Slot()
     def add_projectboard(self):
-        directory = self.settings_page.settings.get('[PBDIR]', '~/')
+        directory = self.settings_page.settings.get("[PBDIR]", "~/")
         directory = os.path.expanduser(directory)
         options = QFileDialog.DontConfirmOverwrite
-        file_name = QFileDialog.getSaveFileName(caption='Choose file',
-                                                dir=directory,
-                                                options=options)
+        file_name = QFileDialog.getSaveFileName(
+            caption="Choose file", dir=directory, options=options
+        )
         if not file_name[1]:
             return
 
@@ -152,31 +150,37 @@ class MainWindow(QMainWindow):
             projectboard = add_pb_instance(None, file_name[0], True)
             if projectboard is None:
                 info = QMessageBox()
-                info.setText(' '.join([file_name[0],
-                                       "is not a valid",
-                                       "PyProjectBoard file!",
-                                       "File not read!"]))
+                info.setText(
+                    " ".join(
+                        [
+                            file_name[0],
+                            "is not a valid",
+                            "PyProjectBoard file!",
+                            "File not read!",
+                        ]
+                    )
+                )
                 info.setIcon(QMessageBox.Critical)
                 info.exec()
                 return
 
-            pb_name = projectboard.get_metadata('name')
+            pb_name = projectboard.get_metadata("name")
 
         elif file_name[0]:
             pb_name = os.path.basename(file_name[0])
             projectboard = add_pb_instance(pb_name, file_name[0], False)
             projectboard.save_data()
 
-        joint_name = ':'.join((pb_name, file_name[0]))
-        if joint_name not in self.settings_page.settings['@OPEN']:
+        joint_name = ":".join((pb_name, file_name[0]))
+        if joint_name not in self.settings_page.settings["@OPEN"]:
             page_manager = PageManager(projectboard)
             self.tabs.addTab(page_manager, pb_name)
             self.connect_close_button(page_manager)
-            self.settings_page.settings['@OPEN'].append(joint_name)
+            self.settings_page.settings["@OPEN"].append(joint_name)
             item = add_item(joint_name)
             self.settings_page.list_projectboards.addItem(item)
 
-        item_idx = self.settings_page.settings['@OPEN'].index(joint_name)
+        item_idx = self.settings_page.settings["@OPEN"].index(joint_name)
         self.tabs.setCurrentIndex(item_idx + 1)
         save_settings(self.settings_page.settings)
 
@@ -188,20 +192,18 @@ class MainWindow(QMainWindow):
 
     @Slot()
     def rename_projectboard(self):
-
         item_idx = self.settings_page.list_projectboards.currentRow()
         if item_idx == -1:
             message_text = "Please select projectboard to rename from"
             message_text += " list of open projectboards!"
-            msg = QMessageBox(icon=QMessageBox.Information,
-                              parent=self)
+            msg = QMessageBox(icon=QMessageBox.Information, parent=self)
             msg.setText(message_text)
             msg.exec()
             return
 
         item = self.settings_page.list_projectboards.currentItem()
         item_text = item.text()
-        pb_name, file_name = item_text.strip().rsplit(':', 1)
+        pb_name, file_name = item_text.strip().rsplit(":", 1)
 
         inp = QInputDialog(parent=self)
         inp.setWindowTitle("Rename projectboard")
@@ -216,13 +218,13 @@ class MainWindow(QMainWindow):
         new_name = inp.textValue().strip()
 
         if response_ok and new_name != pb_name:
-            full_name = ':'.join((new_name, file_name))
+            full_name = ":".join((new_name, file_name))
             item.setText(full_name)
-            idx = self.settings_page.settings['@OPEN'].index(item_text)
+            idx = self.settings_page.settings["@OPEN"].index(item_text)
             self.tabs.setTabText(item_idx + 1, new_name)
-            self.settings_page.settings['@OPEN'][idx] = full_name
+            self.settings_page.settings["@OPEN"][idx] = full_name
             page_manager = self.tabs.widget(item_idx + 1)
-            page_manager.views.projectboard.set_metadata('name', new_name)
+            page_manager.views.projectboard.set_metadata("name", new_name)
             page_manager.views.projectboard.save_data()
             save_settings(self.settings_page.settings)
 
@@ -233,7 +235,7 @@ class MainWindow(QMainWindow):
             return
 
         new_idx = item_idx + moveby
-        n_open = len(self.settings_page.settings['@OPEN'])
+        n_open = len(self.settings_page.settings["@OPEN"])
         if new_idx < 0 or new_idx >= n_open:
             return
 
@@ -241,18 +243,18 @@ class MainWindow(QMainWindow):
         self.settings_page.list_projectboards.insertItem(new_idx, item)
         self.settings_page.list_projectboards.setCurrentRow(new_idx)
         item_text = item.text()
-        pb_name, _ = item_text.strip().rsplit(':', 1)
+        pb_name, _ = item_text.strip().rsplit(":", 1)
         page_manager = self.tabs.widget(item_idx + 1)
         self.tabs.removeTab(item_idx + 1)
         self.tabs.insertTab(new_idx + 1, page_manager, pb_name)
-        self.settings_page.settings['@OPEN'].pop(item_idx)
-        self.settings_page.settings['@OPEN'].insert(new_idx, item_text)
+        self.settings_page.settings["@OPEN"].pop(item_idx)
+        self.settings_page.settings["@OPEN"].insert(new_idx, item_text)
         save_settings(self.settings_page.settings)
 
 
 def add_pb_instance(name: str, filename: str, load_data: bool):
     projectboard = ProjectList()
-    projectboard.set_metadata('filename', filename)
+    projectboard.set_metadata("filename", filename)
 
     if load_data:
         try:
@@ -262,6 +264,6 @@ def add_pb_instance(name: str, filename: str, load_data: bool):
             return None
 
     if name is not None:
-        projectboard.set_metadata('name', name)
+        projectboard.set_metadata("name", name)
 
     return projectboard

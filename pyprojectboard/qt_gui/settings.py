@@ -31,6 +31,7 @@ from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence
+
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
@@ -41,15 +42,14 @@ def create_settings_page() -> QWidget:
 
     settings_page.layout = QVBoxLayout()
     settings_page.layout_buttons = QHBoxLayout()
-    settings_page.add_button = QPushButton('+')
-    settings_page.remove_button = QPushButton('-')
-    settings_page.up_button = QPushButton('⇧')
-    settings_page.down_button = QPushButton('⇩')
-    settings_page.rename_button = QPushButton('✍')
+    settings_page.add_button = QPushButton("+")
+    settings_page.remove_button = QPushButton("-")
+    settings_page.up_button = QPushButton("⇧")
+    settings_page.down_button = QPushButton("⇩")
+    settings_page.rename_button = QPushButton("✍")
 
     settings_page.add_button.setShortcut(QKeySequence(Qt.ALT | Qt.Key_Plus))
-    settings_page.remove_button.setShortcut(
-        QKeySequence(Qt.ALT | Qt.Key_Minus))
+    settings_page.remove_button.setShortcut(QKeySequence(Qt.ALT | Qt.Key_Minus))
     settings_page.up_button.setShortcut(QKeySequence(Qt.ALT | Qt.Key_W))
     settings_page.down_button.setShortcut(QKeySequence(Qt.ALT | Qt.Key_S))
     settings_page.rename_button.setShortcut(QKeySequence(Qt.ALT | Qt.Key_R))
@@ -62,10 +62,10 @@ def create_settings_page() -> QWidget:
     # settings_page.layout_buttons.addWidget(QPushButton('Export'))
 
     settings_page.setLayout(settings_page.layout)
-    settings_page.layout.addWidget(QLabel('Projectboards:'))
+    settings_page.layout.addWidget(QLabel("Projectboards:"))
     # settings_page.layout.addWidget(QLabel('Open:'))
     settings_page.list_projectboards = QListWidget()
-    for file_name in settings_page.settings['@OPEN']:
+    for file_name in settings_page.settings["@OPEN"]:
         settings_page.list_projectboards.addItem(add_item(file_name))
     settings_page.layout.addWidget(settings_page.list_projectboards)
 
@@ -74,56 +74,56 @@ def create_settings_page() -> QWidget:
 
 
 def load_settings() -> dict:
-    config_path = '~/.config/pyprojectboard/'
+    config_path = "~/.config/pyprojectboard/"
     config_path = os.path.expanduser(config_path)
-    config_fn = 'pyprojectboard.conf'
+    config_fn = "pyprojectboard.conf"
     config = os.path.join(config_path, config_fn)
-    settings = {'@OPEN': []}
+    settings = {"@OPEN": []}
 
     if not os.path.isfile(config_fn):
         if not os.path.exists(config_path):
             os.makedirs(config_path)
-        with open(config, 'at', encoding='utf-8'):
+        with open(config, "at", encoding="utf-8"):
             pass
 
-    with open(config, 'rt', encoding='utf-8') as conf_file:
+    with open(config, "rt", encoding="utf-8") as conf_file:
         lines = conf_file.readlines()
 
-    item_type = ''
+    item_type = ""
     for line in lines:
-        if line.strip().startswith('@'):
+        if line.strip().startswith("@"):
             key = line.strip()
             settings[key] = []
-            item_type = 'list'
+            item_type = "list"
             continue
-        if line.strip().startswith('['):
+        if line.strip().startswith("["):
             key = line.strip()
-            item_type = 'string'
+            item_type = "string"
             continue
 
-        if item_type == 'list':
+        if item_type == "list":
             settings[key].append(line.strip())
-        elif item_type == 'string':
+        elif item_type == "string":
             settings[key] = line.strip()
 
     return settings
 
 
 def save_settings(settings: dict) -> None:
-    config_fn = '~/.config/pyprojectboard/pyprojectboard.conf'
+    config_fn = "~/.config/pyprojectboard/pyprojectboard.conf"
     config_fn = os.path.expanduser(config_fn)
     output = []
 
     for key in settings:
         output.append(key)
-        if key.startswith('@'):
+        if key.startswith("@"):
             for item in settings[key]:
                 output.append(item)
         else:
             output.append(settings[key])
 
-    output = '\n'.join(output)
-    with open(config_fn, 'wt', encoding='utf-8') as output_file:
+    output = "\n".join(output)
+    with open(config_fn, "wt", encoding="utf-8") as output_file:
         output_file.write(output)
 
 

@@ -28,12 +28,12 @@ from ..qt_gui.elements import finished_states
 
 from .custom_dict import OrderableDict
 
-ENC = 'utf-8'
+ENC = "utf-8"
 
 
 def create_id() -> str:
-    '''Function to create ID based on current time.'''
-    return str(datetime.now()).replace(' ', '-')
+    """Function to create ID based on current time."""
+    return str(datetime.now()).replace(" ", "-")
 
 
 @dataclass
@@ -54,7 +54,7 @@ class ProjectListInterface(abc.ABC):
         """Load data (e.g., group file)."""
 
     @abc.abstractmethod
-    def get_ids(self, group: str = 'projects') -> list[str]:
+    def get_ids(self, group: str = "projects") -> list[str]:
         """Collect project or task IDs and return them as a list.
 
         Argument:
@@ -83,7 +83,7 @@ class ProjectListInterface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def project(self, pid: str, data: dict, action='get') -> None:
+    def project(self, pid: str, data: dict, action="get") -> None:
         """Perform action on project data.
 
         Arguments:
@@ -103,7 +103,7 @@ class ProjectListInterface(abc.ABC):
         """
 
     @abc.abstractmethod
-    def task(self, tid: str, pid: str, data: dict, action='get') -> None:
+    def task(self, tid: str, pid: str, data: dict, action="get") -> None:
         """Perform action on project data.
 
         Arguments:
@@ -122,35 +122,33 @@ class ProjectListInterface(abc.ABC):
 
 @dataclass
 class ProjectList(ProjectListInterface):
-
     _metadata: dict = field(default_factory=dict)
     _projects: dict = field(default_factory=OrderableDict)
     _tasks: dict = field(default_factory=dict)
 
     def save_data(self) -> None:
         jstr = []
-        jstr.append(json.dumps({'METADATA': self._metadata}))
+        jstr.append(json.dumps({"METADATA": self._metadata}))
 
         for project in self._projects.values():
-            jstr.append(json.dumps({'Project': project.__dict__}))
+            jstr.append(json.dumps({"Project": project.__dict__}))
 
         for task in self._tasks.values():
-            jstr.append(json.dumps({'Task': task.__dict__}))
+            jstr.append(json.dumps({"Task": task.__dict__}))
 
-        with open(self._metadata['filename'], 'wt', encoding=ENC) as save:
-            save.write('\n'.join(jstr))
+        with open(self._metadata["filename"], "wt", encoding=ENC) as save:
+            save.write("\n".join(jstr))
 
     def load_data(self, filename: str = None) -> None:
-
         if filename is None:
             try:
-                filename = self._metadata['filename']
+                filename = self._metadata["filename"]
             except KeyError:
-                print('No filenme specified!')
+                print("No filenme specified!")
                 return
 
         try:
-            with open(self._metadata['filename'], 'rt', encoding=ENC) as load:
+            with open(self._metadata["filename"], "rt", encoding=ENC) as load:
                 data = load.readlines()
         except FileNotFoundError:
             pass
@@ -159,13 +157,13 @@ class ProjectList(ProjectListInterface):
                 jstr = json.loads(line)
                 key = next(iter(jstr.keys()))
 
-                if key == 'METADATA':
+                if key == "METADATA":
                     self._metadata = jstr[key]
                     continue
-                if key == 'Project':
+                if key == "Project":
                     current_dict = self._projects
                     item = Project()
-                elif key == 'Task':
+                elif key == "Task":
                     current_dict = self._tasks
                     item = Task()
                 else:
@@ -173,19 +171,19 @@ class ProjectList(ProjectListInterface):
 
                 item.__dict__ = jstr[key]
                 current_dict[item.id] = item
-            self._metadata['filename'] = filename
+            self._metadata["filename"] = filename
 
-    def get_ids(self, group: str = 'projects') -> list[str]:
+    def get_ids(self, group: str = "projects") -> list[str]:
         """Collect project or task IDs and return them as a list.
 
         Argument:
         group -- specify whether the IDs of projects (group='projects') or
                   tasks (group='tasks') should be returned.
         """
-        if group == 'projects':
+        if group == "projects":
             return list(self._projects.keys())
 
-        if group == 'tasks':
+        if group == "tasks":
             return list(self._tasks.keys())
 
         return list(self._metadata.keys())
@@ -211,10 +209,10 @@ class ProjectList(ProjectListInterface):
         try:
             value = self._metadata[key]
         except KeyError:
-            value = ''
+            value = ""
         return value
 
-    def project(self, pid: str, data: dict, action='get') -> None:
+    def project(self, pid: str, data: dict, action="get") -> None:
         """Perform action on project data.
 
         Arguments:
@@ -233,55 +231,59 @@ class ProjectList(ProjectListInterface):
                     * 'fnd' ->  find project id based given its name
         """
 
-        if action == 'get':
+        if action == "get":
             data.update(self._projects[pid].as_dict())
 
-        elif action == 'set':
+        elif action == "set":
             try:
-                data.pop('_id')
+                data.pop("_id")
             except KeyError:
                 pass
             self._projects[pid].__dict__.update(data)
 
-        elif action == 'new':
+        elif action == "new":
             new_project = Project()
             if len(data):
                 new_project.__dict__.update(data)
             self._projects[new_project.id] = new_project
             data.update(new_project.as_dict())
 
-        elif action == 'del':
+        elif action == "del":
             for tid in self._projects[pid].task_ids:
-                self.task(tid, pid, data, 'del')
+                self.task(tid, pid, data, "del")
             project = self._projects.pop(pid)
             data.update(project.as_dict())
 
-        elif action == 'prg':
+        elif action == "prg":
             tids = self._projects[pid].task_ids
             n_tasks = len(tids)
-            n_finished = sum(1 for tid in tids
-                             if self._tasks[tid].state in finished_states)
+            n_finished = sum(
+                1 for tid in tids if self._tasks[tid].state in finished_states
+            )
             prj_fin = self._projects[pid].state in finished_states
             prg = n_finished / n_tasks if n_tasks else prj_fin
             prg = prg * 100
-            data['progress'] = prg
+            data["progress"] = prg
             try:
-                self._projects[pid].progress = data['progress']
+                self._projects[pid].progress = data["progress"]
             except KeyError as err:
                 print(f"KeyError: key not found: {err}!")
 
-        elif action == 'mov':
-            self._projects.move(pid, data['moveby'])
+        elif action == "mov":
+            self._projects.move(pid, data["moveby"])
 
-        elif action == 'fnd':
-            pid = (pid for pid in self._projects
-                   if self._projects[pid].name == data['name'])
+        elif action == "fnd":
+            pid = (
+                pid
+                for pid in self._projects
+                if self._projects[pid].name == data["name"]
+            )
             try:
-                data['pid'] = next(pid)
+                data["pid"] = next(pid)
             except StopIteration:
-                data['pid'] = None
+                data["pid"] = None
 
-    def task(self, tid: str, pid: str, data: dict, action='get') -> None:
+    def task(self, tid: str, pid: str, data: dict, action="get") -> None:
         """Perform action on project data.
 
         Arguments:
@@ -296,49 +298,49 @@ class ProjectList(ProjectListInterface):
                     * 'del' ->  delete task
                     * 'chp' ->  change project the task belongs to
         """
-        if action == 'get':
+        if action == "get":
             data.update(self._tasks[tid].as_dict())
-        elif action == 'set':
+        elif action == "set":
             try:
-                data.pop('_id')
+                data.pop("_id")
             except KeyError:
                 pass
             self._tasks[tid].__dict__.update(data)
             if tid not in self._projects[pid].task_ids:
                 self._projects[pid].task_ids.append(tid)
-        elif action == 'new':
+        elif action == "new":
             new_task = Task()
             if len(data):
                 new_task.__dict__.update(data)
             self._tasks[new_task.id] = new_task
-            if data.get('app', False):
-                data.pop('app')
+            if data.get("app", False):
+                data.pop("app")
                 self._projects[pid].task_ids.append(new_task.id)
             else:
                 self._projects[pid].task_ids.insert(0, new_task.id)
             data.update(new_task.as_dict())
-        elif action == 'del':
+        elif action == "del":
             try:
                 self._projects[pid].task_ids.remove(tid)
             except ValueError:
-                print('Project ' + pid + ' has not task with ID ' + tid)
+                print("Project " + pid + " has not task with ID " + tid)
             else:
                 task = self._tasks.pop(tid)
                 data.update(task.as_dict())
-        elif action == 'chp':
+        elif action == "chp":
             self._projects[pid].task_ids.remove(tid)
-            self._projects[data['new_pid']].task_ids.append(tid)
+            self._projects[data["new_pid"]].task_ids.append(tid)
 
 
 @dataclass
 class Project:
     """Class containing project data"""
 
-    name: str = ''
-    description: str = ''
-    duedate: str = ''
-    creation_date: str = ''
-    state: str = ''
+    name: str = ""
+    description: str = ""
+    duedate: str = ""
+    creation_date: str = ""
+    state: str = ""
     progress: float = 0.0
     _id: str = field(default_factory=create_id)
     task_ids: list[str] = field(default_factory=list)

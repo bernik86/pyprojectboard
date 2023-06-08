@@ -33,6 +33,7 @@ from PySide6.QtWidgets import QProgressBar, QStackedWidget
 from PySide6.QtCore import Slot
 from PySide6.QtCore import QDate, Qt
 from PySide6.QtWidgets import QMenu
+
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
@@ -53,7 +54,6 @@ from .task_views import TaskView
 
 
 class ProjectEntry(QWidget):
-
     def __init__(self, project: dict):
         super().__init__()
         pol = QSizePolicy()
@@ -62,31 +62,29 @@ class ProjectEntry(QWidget):
         self.project = dict(project)
         self.layout = QHBoxLayout(self)
 
-        self.move_up = QPushButton('⇧')
+        self.move_up = QPushButton("⇧")
         self.move_up.setMaximumWidth(50)
-        self.move_up.setObjectName('arrow')
-        self.move_down = QPushButton('⇩')
+        self.move_up.setObjectName("arrow")
+        self.move_down = QPushButton("⇩")
         self.move_down.setMaximumWidth(50)
-        self.move_down.setObjectName('arrow')
+        self.move_down.setObjectName("arrow")
 
-        self.project_name = QPushButton(project['name'])
-        self.project_name.setSizePolicy(QSizePolicy.Expanding,
-                                        QSizePolicy.Maximum)
-        button_state = 'projectbutton-' + project['state'].replace(' ', '')
+        self.project_name = QPushButton(project["name"])
+        self.project_name.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        button_state = "projectbutton-" + project["state"].replace(" ", "")
         self.project_name.setObjectName(button_state)
         self.progress = QProgressBar()
-        self.progress.setValue(project['progress'])
-        self.progress.setSizePolicy(QSizePolicy.Maximum,
-                                    QSizePolicy.Maximum)
+        self.progress.setValue(project["progress"])
+        self.progress.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.progress.setMaximumWidth(400)
         self.progress.setMinimumWidth(300)
         self.progress.setMaximumHeight(25)
 
-        dd_label = 'Duedate: '
-        if project['duedate'] != '':
-            dd_label += project['duedate']
+        dd_label = "Duedate: "
+        if project["duedate"] != "":
+            dd_label += project["duedate"]
         else:
-            dd_label += 'None'
+            dd_label += "None"
         dd_label.ljust(30)
         self.duedate = QLabel(dd_label)
         self.duedate.setMinimumWidth(200)
@@ -104,10 +102,10 @@ class ProjectEntry(QWidget):
         self.customContextMenuRequested.connect(self.on_context_menu)
 
     def update_fields(self) -> None:
-        if self.project['duedate'] != '':
-            dd_label = 'Duedate: ' + self.project['duedate']
+        if self.project["duedate"] != "":
+            dd_label = "Duedate: " + self.project["duedate"]
             self.duedate.setText(dd_label)
-        self.progress.setValue(self.project['progress'])
+        self.progress.setValue(self.project["progress"])
 
     def on_context_menu(self, pos):
         self.menu.exec_(self.mapToGlobal(pos))
@@ -131,13 +129,13 @@ class PageManager(QStackedWidget):
 
     def connect_views_buttons(self) -> None:
         # ProjectListView buttons
-        save = self.views.projectboard_view.buttons['&Save']
+        save = self.views.projectboard_view.buttons["&Save"]
         save.clicked.connect(self.save_button_clicked)
 
-        add = self.views.projectboard_view.buttons['Add &Project']
+        add = self.views.projectboard_view.buttons["Add &Project"]
         add.clicked.connect(self.projectlist_view_add_clicked)
 
-        export_btn = self.views.projectboard_view.buttons['&Export']
+        export_btn = self.views.projectboard_view.buttons["&Export"]
         export_btn.clicked.connect(self.projectlist_view_export_clicked)
 
         for child in self.views.projectboard_view.children():
@@ -147,26 +145,26 @@ class PageManager(QStackedWidget):
                 self.connect_project_entry_buttons(child)
 
         # ProjectView buttons
-        app = self.views.project_view.buttons['&Apply']
+        app = self.views.project_view.buttons["&Apply"]
         app.clicked.connect(self.project_view_apply_clicked)
 
-        cancel = self.views.project_view.buttons['&Cancel']
+        cancel = self.views.project_view.buttons["&Cancel"]
         cancel.clicked.connect(self.project_view_cancel_clicked)
 
-        add = self.views.project_view.buttons['Add &Task']
+        add = self.views.project_view.buttons["Add &Task"]
         add.clicked.connect(self.project_view_add_task_clicked)
 
-        delete = self.views.project_view.buttons['&Delete']
+        delete = self.views.project_view.buttons["&Delete"]
         delete.clicked.connect(self.project_view_delete_clicked)
 
         # TaskView buttons
-        app = self.views.task_view.buttons['&Apply']
+        app = self.views.task_view.buttons["&Apply"]
         app.clicked.connect(self.task_view_apply_clicked)
 
-        cancel = self.views.task_view.buttons['&Cancel']
+        cancel = self.views.task_view.buttons["&Cancel"]
         cancel.clicked.connect(self.task_view_cancel_clicked)
 
-        delete = self.views.task_view.buttons['&Delete']
+        delete = self.views.task_view.buttons["&Delete"]
         delete.clicked.connect(self.task_view_delete_clicked)
 
     def switch_from_project_view_to_projectlist_view(self) -> None:
@@ -177,15 +175,12 @@ class PageManager(QStackedWidget):
         # self.setWidget(self.views.projectboard_view)
         self.setCurrentWidget(self.views.projectboard_view)
 
-    def switch_from_projectlist_view_to_project_view(
-            self,
-            project: dict) -> None:
-
+    def switch_from_projectlist_view_to_project_view(self, project: dict) -> None:
         self.views.project_view.reset()
-        self.current_pid = project['_id']
+        self.current_pid = project["_id"]
         self.project_list.project(self.current_pid, project)
         tasks = []
-        for tid in project['task_ids']:
+        for tid in project["task_ids"]:
             task_dict = {}
             self.project_list.task(tid, self.current_pid, task_dict)
             tasks.append(task_dict)
@@ -203,14 +198,14 @@ class PageManager(QStackedWidget):
     @Slot()
     def projectlist_view_add_clicked(self):
         project = {}
-        project['creation_date'] = str(python_date.today())
-        self.project_list.project(None, project, 'new')
-        self.current_pid = project['_id']
+        project["creation_date"] = str(python_date.today())
+        self.project_list.project(None, project, "new")
+        self.current_pid = project["_id"]
         new_entry = self.views.projectboard_view.add_project_entry(project)
         new_entry.project_name.clicked.connect(self.on_project_button_clicked)
         new_entry.update_date = False
-        self.views.project_view.buttons['&Cancel'].setEnabled(False)
-        self.views.project_view.buttons['Add &Task'].setEnabled(False)
+        self.views.project_view.buttons["&Cancel"].setEnabled(False)
+        self.views.project_view.buttons["Add &Task"].setEnabled(False)
         self._sender = new_entry
         self.connect_project_entry_buttons(new_entry)
         self.switch_from_projectlist_view_to_project_view(project)
@@ -221,22 +216,22 @@ class PageManager(QStackedWidget):
 
     @Slot()
     def on_project_button_clicked(self):
-        self.views.project_view.buttons['&Cancel'].setEnabled(True)
-        self.views.project_view.buttons['Add &Task'].setEnabled(True)
+        self.views.project_view.buttons["&Cancel"].setEnabled(True)
+        self.views.project_view.buttons["Add &Task"].setEnabled(True)
         self._sender = self.sender().parent()
-        if self._sender.project_name.objectName().find('projectbutton') > -1:
+        if self._sender.project_name.objectName().find("projectbutton") > -1:
             project = self._sender.project
         self.switch_from_projectlist_view_to_project_view(project)
 
     @Slot()
     def project_view_apply_clicked(self):
         project = self.views.project_view.get_data()
-        self.project_list.project(self.current_pid, project, 'set')
-        self.project_list.project(self.current_pid, project, 'prg')
-        self._sender.project_name.setText(project['name'])
+        self.project_list.project(self.current_pid, project, "set")
+        self.project_list.project(self.current_pid, project, "prg")
+        self._sender.project_name.setText(project["name"])
         self._sender.project.update(project)
         # self.project_list.project(self.current_pid, project, 'set')
-        button_state = 'projectbutton-' + project['state'].replace(' ', '')
+        button_state = "projectbutton-" + project["state"].replace(" ", "")
         self._sender.project_name.setObjectName(button_state)
         self._sender.project_name.setStyle(self._sender.project_name.style())
         self._sender.update_fields()
@@ -244,31 +239,30 @@ class PageManager(QStackedWidget):
 
     @Slot()
     def project_view_cancel_clicked(self):
-        answer = show_dialog('Do you want to discard any changes?')
+        answer = show_dialog("Do you want to discard any changes?")
         if answer == QMessageBox.Yes:
             self.switch_from_project_view_to_projectlist_view()
 
     @Slot()
     def project_view_delete_clicked(self):
-        answer = show_dialog('Do you really want to delete this project?')
+        answer = show_dialog("Do you really want to delete this project?")
         if answer == QMessageBox.Yes:
             pids = self.views.projectboard.get_ids()
             widget_id = pids.index(self.current_pid)
             pids.pop(widget_id)
             children = self.views.projectboard_view.children()
-            entries = [child for child in children
-                       if isinstance(child, ProjectEntry)]
+            entries = [child for child in children if isinstance(child, ProjectEntry)]
 
             widget = entries[widget_id]
             self.views.projectboard_view.layout.removeWidget(widget)
             widget.deleteLater()
-            self.project_list.project(self.current_pid, {}, 'del')
+            self.project_list.project(self.current_pid, {}, "del")
             self.switch_from_project_view_to_projectlist_view()
 
     @Slot()
     def save_button_clicked(self):
         desc = self.views.projectboard_view.pb_desc[2].toPlainText()
-        self.project_list.set_metadata('description', desc)
+        self.project_list.set_metadata("description", desc)
         self.project_list.save_data()
 
     def switch_from_project_view_to_task_view(self, task: dict) -> None:
@@ -279,8 +273,8 @@ class PageManager(QStackedWidget):
 
     def switch_from_task_view_to_project_view(self) -> None:
         data = {}
-        self.project_list.project(self.current_pid, data, 'prg')
-        self._sender.progress.setValue(data['progress'])
+        self.project_list.project(self.current_pid, data, "prg")
+        self._sender.progress.setValue(data["progress"])
         self._task_sender = None
         self.current_tid = None
         self.views.task_view.state.setCurrentText(State.TBD.value)
@@ -290,21 +284,20 @@ class PageManager(QStackedWidget):
 
     @Slot()
     def task_button_clicked(self):
-        self.views.task_view.buttons['&Cancel'].setEnabled(True)
+        self.views.task_view.buttons["&Cancel"].setEnabled(True)
         self._task_sender = self.sender().parent()
         task = self._task_sender.task
-        self.current_tid = task['_id']
+        self.current_tid = task["_id"]
         self.switch_from_project_view_to_task_view(task)
 
     @Slot()
     def task_view_apply_clicked(self):
         task = self.views.task_view.get_data()
-        task['_id'] = self.current_tid
-        self._task_sender.button.setText(task['name'])
+        task["_id"] = self.current_tid
+        self._task_sender.button.setText(task["name"])
         self._task_sender.task.update(task)
-        self.project_list.task(self.current_tid,
-                               self.current_pid, task, 'set')
-        button_state = 'projectbutton-' + task['state'].replace(' ', '')
+        self.project_list.task(self.current_tid, self.current_pid, task, "set")
+        button_state = "projectbutton-" + task["state"].replace(" ", "")
         self._task_sender.button.setObjectName(button_state)
         self._task_sender.button.setStyle(self._task_sender.button.style())
         self._task_sender.update_fields()
@@ -312,42 +305,40 @@ class PageManager(QStackedWidget):
 
     @Slot()
     def task_view_cancel_clicked(self):
-        answer = show_dialog('Do you want to discard any changes?')
+        answer = show_dialog("Do you want to discard any changes?")
         if answer == QMessageBox.Yes:
             self.switch_from_task_view_to_project_view()
 
     @Slot()
     def task_view_delete_clicked(self):
-        answer = show_dialog('Do you really want to delete this task?')
+        answer = show_dialog("Do you really want to delete this task?")
         if answer == QMessageBox.Yes:
             widget = self._task_sender
-            self.project_list.task(self.current_tid,
-                                   self.current_pid, {}, 'del')
+            self.project_list.task(self.current_tid, self.current_pid, {}, "del")
             widget.deleteLater()
             self.switch_from_task_view_to_project_view()
 
     @Slot()
     def project_view_add_task_clicked(self):
-        task = {'creation_date': str(python_date.today())}
-        self.project_list.task(None, self.current_pid, task, 'new')
-        self.current_tid = task['_id']
+        task = {"creation_date": str(python_date.today())}
+        self.project_list.task(None, self.current_pid, task, "new")
+        self.current_tid = task["_id"]
         new_entry = self.views.project_view.add_task_entry(task)
         new_entry.button.clicked.connect(self.task_button_clicked)
         new_entry.update_date = False
         self.add_task_menu(new_entry)
-        self.views.task_view.buttons['&Cancel'].setEnabled(False)
+        self.views.task_view.buttons["&Cancel"].setEnabled(False)
         self._task_sender = new_entry
         self.switch_from_project_view_to_task_view(task)
 
     def add_task_menu(self, task_entry: TaskEntry) -> None:
-
-        tid = task_entry.task['_id']
+        tid = task_entry.task["_id"]
 
         @Slot()
         def move_task(moveby: int):
             layout = self.views.project_view.layout_right
             self.project_list.project(self.current_pid, project := {})
-            task_ids = project['task_ids']
+            task_ids = project["task_ids"]
             n_tasks = len(task_ids)
             idx = task_ids.index(tid)
 
@@ -356,60 +347,56 @@ class PageManager(QStackedWidget):
 
             if idx2 != idx:
                 task_ids.insert(idx2, task_ids.pop(idx))
-                self.project_list.project(self.current_pid, project, 'set')
+                self.project_list.project(self.current_pid, project, "set")
                 layout.removeWidget(task_entry)
                 layout.insertWidget(idx2 + 1, task_entry)
 
         @Slot()
         def set_task_state(new_state: str):
-            task_entry.task['state'] = new_state
-            state_name = task_entry.task['state'].replace(' ', '')
-            task_entry.button.setObjectName('projectbutton-' + state_name)
+            task_entry.task["state"] = new_state
+            state_name = task_entry.task["state"].replace(" ", "")
+            task_entry.button.setObjectName("projectbutton-" + state_name)
             task_entry.button.setStyle(task_entry.button.style())
-            self.project_list.task(tid,
-                                   self.current_pid,
-                                   dict(task_entry.task), 'set')
-            self.project_list.project(self.current_pid, {}, 'prg')
+            self.project_list.task(tid, self.current_pid, dict(task_entry.task), "set")
+            self.project_list.project(self.current_pid, {}, "prg")
 
         @Slot()
         def move_to_project(new_project: str, copy=False):
-            data = {'name': new_project}
-            self.project_list.project('', data, 'fnd')
-            data['new_pid'] = data['pid']
-            if data['new_pid'] is None:
-                data['new_pid'] = self.current_pid
+            data = {"name": new_project}
+            self.project_list.project("", data, "fnd")
+            data["new_pid"] = data["pid"]
+            if data["new_pid"] is None:
+                data["new_pid"] = self.current_pid
             if copy:
                 new_task = dict(task_entry.task)
-                new_task.pop('_id')
-                new_task['app'] = True
-                self.project_list.task('', data['new_pid'], new_task, 'new')
-                if data['new_pid'] == self.current_pid:
+                new_task.pop("_id")
+                new_task["app"] = True
+                self.project_list.task("", data["new_pid"], new_task, "new")
+                if data["new_pid"] == self.current_pid:
                     new_task_entry = TaskEntry(new_task)
                     self.views.project_view.layout_right.addWidget(new_task_entry)
                     new_task_entry.button.clicked.connect(self.task_button_clicked)
                     self.add_task_menu(new_task_entry)
             else:
-                self.project_list.task(tid, self.current_pid, data, 'chp')
+                self.project_list.task(tid, self.current_pid, data, "chp")
                 self.views.project_view.layout_right.removeWidget(task_entry)
                 task_entry.deleteLater()
 
-        menu_entries = (("Move to top", partial(move_task, 50000)),
-                        ("Move up 5 places", partial(move_task, 5)),
-                        ("----------------------------------", None),
-                        ("Set state: started",
-                         partial(set_task_state, State.STARTED.value)),
-                        ("Set state: finished",
-                         partial(set_task_state, State.FINISHED.value)),
-                        ("----------------------------------", None),
-                        ("Move down 5 places", partial(move_task, -5)),
-                        ("Move to bottom", partial(move_task, -50000)),
-                        ("----------------------------------", None),
-                        ("Duplicate task", partial(move_to_project, None, True)))
+        menu_entries = (
+            ("Move to top", partial(move_task, 50000)),
+            ("Move up 5 places", partial(move_task, 5)),
+            ("----------------------------------", None),
+            ("Set state: started", partial(set_task_state, State.STARTED.value)),
+            ("Set state: finished", partial(set_task_state, State.FINISHED.value)),
+            ("----------------------------------", None),
+            ("Move down 5 places", partial(move_task, -5)),
+            ("Move to bottom", partial(move_task, -50000)),
+            ("----------------------------------", None),
+            ("Duplicate task", partial(move_to_project, None, True)),
+        )
 
         for entry, connect in menu_entries:
-            task_entry.menu.addAction(add_action(entry,
-                                                 task_entry,
-                                                 connect))
+            task_entry.menu.addAction(add_action(entry, task_entry, connect))
 
         mv_menu = task_entry.menu.addMenu("Move to other project")
         cp_menu = task_entry.menu.addMenu("Copy to other project")
@@ -417,25 +404,28 @@ class PageManager(QStackedWidget):
             if pid == self.current_pid:
                 continue
             self.project_list.project(pid, project := {})
-            mv_menu.addAction(add_action(project['name'],
-                                         task_entry.menu,
-                                         partial(move_to_project, project['name'])))
-            cp_menu.addAction(add_action(project['name'],
-                                         task_entry.menu,
-                                         partial(move_to_project,
-                                                 project['name'],
-                                                 True)))
+            mv_menu.addAction(
+                add_action(
+                    project["name"],
+                    task_entry.menu,
+                    partial(move_to_project, project["name"]),
+                )
+            )
+            cp_menu.addAction(
+                add_action(
+                    project["name"],
+                    task_entry.menu,
+                    partial(move_to_project, project["name"], True),
+                )
+            )
 
         task_entry.move_up.clicked.connect(partial(move_task, 1))
         task_entry.move_down.clicked.connect(partial(move_task, -1))
 
-    def connect_project_entry_buttons(
-            self,
-            project_entry: ProjectEntry):
-
+    def connect_project_entry_buttons(self, project_entry: ProjectEntry):
         @Slot()
         def move_project(moveby):
-            pid = project_entry.project['_id']
+            pid = project_entry.project["_id"]
             layout = self.views.projectboard_view.layout
             n_projects = len(self.project_list.get_ids())
             idx = layout.indexOf(project_entry)
@@ -445,38 +435,37 @@ class PageManager(QStackedWidget):
             idx2 = min(idx2, n_projects + 1)
 
             if idx2 != idx:
-                self.project_list.project(pid, {'moveby': -moveby}, 'mov')
+                self.project_list.project(pid, {"moveby": -moveby}, "mov")
                 widget = layout.takeAt(idx)
                 layout.insertItem(idx2, widget)
 
         @Slot()
         def set_state(new_state: str):
-            project_entry.project['state'] = new_state
-            state_name = project_entry.project['state'].replace(' ', '')
-            btn_name = 'projectbutton-' + state_name
+            project_entry.project["state"] = new_state
+            state_name = project_entry.project["state"].replace(" ", "")
+            btn_name = "projectbutton-" + state_name
             project_entry.project_name.setObjectName(btn_name)
             project_entry.project_name.setStyle(project_entry.project_name.style())
-            self.project_list.project(project_entry.project['_id'],
-                                      dict(project_entry.project), 'set')
-            pid = project_entry.project['_id']
-            self.project_list.project(pid, prg := {}, 'prg')
-            project_entry.progress.setValue(prg['progress'])
+            self.project_list.project(
+                project_entry.project["_id"], dict(project_entry.project), "set"
+            )
+            pid = project_entry.project["_id"]
+            self.project_list.project(pid, prg := {}, "prg")
+            project_entry.progress.setValue(prg["progress"])
 
-        menu_entries = (("Move to top", partial(move_project, 50000)),
-                        ("Move up 5 places", partial(move_project, 5)),
-                        ("----------------------------------", None),
-                        ("Set state: started",
-                         partial(set_state, State.STARTED.value)),
-                        ("Set state: finished",
-                         partial(set_state, State.FINISHED.value)),
-                        ("----------------------------------", None),
-                        ("Move down 5 places", partial(move_project, -5)),
-                        ("Move to bottom", partial(move_project, -50000)))
+        menu_entries = (
+            ("Move to top", partial(move_project, 50000)),
+            ("Move up 5 places", partial(move_project, 5)),
+            ("----------------------------------", None),
+            ("Set state: started", partial(set_state, State.STARTED.value)),
+            ("Set state: finished", partial(set_state, State.FINISHED.value)),
+            ("----------------------------------", None),
+            ("Move down 5 places", partial(move_project, -5)),
+            ("Move to bottom", partial(move_project, -50000)),
+        )
 
         for entry, connect in menu_entries:
-            project_entry.menu.addAction(add_action(entry,
-                                                    project_entry,
-                                                    connect))
+            project_entry.menu.addAction(add_action(entry, project_entry, connect))
 
         project_entry.move_up.clicked.connect(partial(move_project, 1))
         project_entry.move_down.clicked.connect(partial(move_project, -1))
@@ -489,26 +478,25 @@ class ProjectListView(QWidget):
         self.layout.setAlignment(Qt.AlignTop)
         self.pb_desc = add_projectboard_description(10, 10)
 
-        button_list = ['&Save', 'Add &Project', '&Export', '&Close']
+        button_list = ["&Save", "Add &Project", "&Export", "&Close"]
         self.buttons = add_action_buttons(10, 10, button_list=button_list)
-        self.layout.addLayout(self.buttons['layout'])
+        self.layout.addLayout(self.buttons["layout"])
         self.layout.addLayout(self.pb_desc[0])
 
     def add_project_entry(self, project: dict) -> ProjectEntry:
-        n_widgets = sum(1 for widg in self.children()
-                        if isinstance(widg, ProjectEntry))
+        n_widgets = sum(1 for widg in self.children() if isinstance(widg, ProjectEntry))
 
         self.layout.insertWidget(n_widgets + 2, entry := ProjectEntry(project))
 
         return entry
 
     def set_data(self, project_list: ProjectList) -> None:
-        desc = project_list.get_metadata('description')
+        desc = project_list.get_metadata("description")
         self.pb_desc[2].setText(desc)
         pids = project_list.get_ids()
         for pid in pids:
             project_list.project(pid, project := {})
-            project_list.project(pid, project, 'prg')
+            project_list.project(pid, project, "prg")
             self.layout.addWidget(ProjectEntry(project))
 
         self.layout.addStretch()
@@ -518,7 +506,7 @@ class ProjectView(QWidget):
     def __init__(self):
         super().__init__()
 
-        action_buttons = ['&Apply', '&Cancel', 'Add &Task', '&Delete']
+        action_buttons = ["&Apply", "&Cancel", "Add &Task", "&Delete"]
         self.buttons = add_action_buttons(0, 0, 0, action_buttons)
 
         pn_layout, self.project_name = add_name()
@@ -532,7 +520,7 @@ class ProjectView(QWidget):
         self.project_desc = add_desc()
 
         self.layout = QVBoxLayout()
-        self.layout.addLayout(self.buttons['layout'])
+        self.layout.addLayout(self.buttons["layout"])
         self.layout.addLayout(pn_layout)
         self.layout.addLayout(duedate_layout)
         self.layout.addLayout(state_layout)
@@ -547,7 +535,7 @@ class ProjectView(QWidget):
 
         # self.layout_right = QVBoxLayout()
         self.layout_right = QVBoxLayout(self.qsa_widg)
-        self.layout_right.addLayout(label_plus_stretch('Tasks'))
+        self.layout_right.addLayout(label_plus_stretch("Tasks"))
         self.layout_right.setAlignment(Qt.AlignTop)
 
         self.h_layout = QHBoxLayout(self)
@@ -562,15 +550,15 @@ class ProjectView(QWidget):
         self.update_date = True
 
     def set_data(self, project: dict, tasks: list[dict]) -> None:
-        self.project_name.setText(project['name'])
-        self.project_desc.setPlainText(project['description'])
-        self.state.setCurrentText(project['state'])
-        self.created.setText(project['creation_date'])
+        self.project_name.setText(project["name"])
+        self.project_desc.setPlainText(project["description"])
+        self.state.setCurrentText(project["state"])
+        self.created.setText(project["creation_date"])
         date = QDate()
-        if project['duedate'] == '':
+        if project["duedate"] == "":
             date = date.fromString(str(python_date.today()), format=Qt.ISODate)
         else:
-            date = date.fromString(project['duedate'], format=Qt.ISODate)
+            date = date.fromString(project["duedate"], format=Qt.ISODate)
         self.duedate.setDate(date)
         self.update_date = False
 
@@ -582,12 +570,12 @@ class ProjectView(QWidget):
 
     def get_data(self) -> dict:
         data = {}
-        data['name'] = self.project_name.text()
-        data['description'] = self.project_desc.toPlainText()
+        data["name"] = self.project_name.text()
+        data["description"] = self.project_desc.toPlainText()
         if self.update_date:
-            data['duedate'] = self.duedate.date().toString(format=Qt.ISODate)
+            data["duedate"] = self.duedate.date().toString(format=Qt.ISODate)
             self.update_date = False
-        data['state'] = self.state.currentText()
+        data["state"] = self.state.currentText()
         self.state.setCurrentText(State.TBD.value)
         for child in self.children():
             if isinstance(child, TaskEntry):
@@ -610,8 +598,7 @@ class ProjectView(QWidget):
 
 
 @dataclass
-class Views():
-
+class Views:
     projectboard_view: ProjectListView = field(default_factory=ProjectListView)
     project_view: ProjectView = field(default_factory=ProjectView)
     task_view: TaskView = field(default_factory=TaskView)

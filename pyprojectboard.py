@@ -26,18 +26,19 @@ from PySide6.QtWidgets import QApplication
 from qt_material import apply_stylesheet
 
 from pyprojectboard.qt_gui.qt_app import MainWindow
+
 # pylint: enable=import-error, no-name-in-module
 
 
 def main():
     app = QApplication()
     file_path = os.path.dirname(__file__)
-    theme_fn = os.path.join(file_path, 'pyprojectboard/qt_gui/theme.xml')
+    theme_fn = os.path.join(file_path, "pyprojectboard/qt_gui/theme.xml")
     apply_stylesheet(app, theme=theme_fn)
     app.window = MainWindow()
     app.window.show()
     app.exec()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

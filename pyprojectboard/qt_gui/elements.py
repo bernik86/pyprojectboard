@@ -37,25 +37,24 @@ from PySide6.QtWidgets import QPushButton
 from PySide6.QtWidgets import QDateEdit
 from PySide6.QtWidgets import QTextEdit
 from PySide6.QtWidgets import QSizePolicy
+
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module
 
 
 class State(Enum):
-    TBD = 'to be determined'
-    STARTED = 'started'
-    FINISHED = 'finished'
-    DISCARDED = 'discarded'
+    TBD = "to be determined"
+    STARTED = "started"
+    FINISHED = "finished"
+    DISCARDED = "discarded"
 
 
 finished_states = (State.FINISHED.value, State.DISCARDED.value)
 
 
 def label_plus_line_edit(
-        label_text: str,
-        edit_text: str,
-        edit_length: int) -> Tuple[QHBoxLayout, QLineEdit]:
-
+    label_text: str, edit_text: str, edit_length: int
+) -> Tuple[QHBoxLayout, QLineEdit]:
     label = QLabel(label_text)
     label.setMaximumWidth(150)
     label.setMinimumWidth(100)
@@ -73,7 +72,6 @@ def label_plus_line_edit(
 
 
 def label_plus_combobox(label_text: str) -> Tuple[QHBoxLayout, QComboBox]:
-
     label = QLabel(label_text)
     label.setMaximumWidth(150)
     label.setMinimumWidth(100)
@@ -89,7 +87,6 @@ def label_plus_combobox(label_text: str) -> Tuple[QHBoxLayout, QComboBox]:
 
 
 def label_plus_stretch(label_text: str) -> QHBoxLayout:
-
     layout = QHBoxLayout()
     layout.addStretch(1)
     layout.addWidget(QLabel(label_text))
@@ -98,13 +95,11 @@ def label_plus_stretch(label_text: str) -> QHBoxLayout:
     return layout
 
 
-def add_action_buttons(left: int = 20,
-                       right: int = 20,
-                       spacing: int = 6,
-                       button_list: list = None) -> dict:
-
+def add_action_buttons(
+    left: int = 20, right: int = 20, spacing: int = 6, button_list: list = None
+) -> dict:
     if button_list is None:
-        button_list = ['Save', 'New', 'Delete']
+        button_list = ["Save", "New", "Delete"]
 
     buttons = {}
 
@@ -120,15 +115,12 @@ def add_action_buttons(left: int = 20,
 
     layout.insertStretch(len(button_list * 2) - 1)
     layout.addSpacing(right)
-    buttons['layout'] = layout
+    buttons["layout"] = layout
 
     return buttons
 
 
-def show_dialog(
-        msg_text: str,
-        msg_icon: int = QMessageBox.Warning) -> int:
-
+def show_dialog(msg_text: str, msg_icon: int = QMessageBox.Warning) -> int:
     msg_box = QMessageBox()
     msg_box.setIcon(msg_icon)
     msg_box.setText(msg_text)
@@ -140,7 +132,7 @@ def show_dialog(
 
 
 def add_name() -> Tuple[QHBoxLayout, QLineEdit]:
-    label = QLabel('Name:')
+    label = QLabel("Name:")
     label.setMaximumWidth(150)
     label.setMinimumWidth(100)
     line_edit = QLineEdit()
@@ -156,13 +148,13 @@ def add_name() -> Tuple[QHBoxLayout, QLineEdit]:
 
 def add_duedate() -> Tuple[QHBoxLayout, QDateEdit]:
     duedate_layout = QHBoxLayout()
-    label = QLabel('Duedate:')
+    label = QLabel("Duedate:")
     label.setMinimumWidth(100)
     label.setMaximumHeight(150)
     duedate_layout.addWidget(label)
     duedate = QDateEdit()
     duedate.setCalendarPopup(True)
-    duedate.setDisplayFormat('yyyy-MM-dd')
+    duedate.setDisplayFormat("yyyy-MM-dd")
     duedate_layout.addWidget(duedate)
     duedate_layout.addStretch()
 
@@ -170,8 +162,7 @@ def add_duedate() -> Tuple[QHBoxLayout, QDateEdit]:
 
 
 def add_state(creation_date=True) -> Tuple[QHBoxLayout, QComboBox, QLabel]:
-
-    label = QLabel('State:')
+    label = QLabel("State:")
     label.setMaximumWidth(150)
     label.setMinimumWidth(100)
     combo = QComboBox()
@@ -185,7 +176,7 @@ def add_state(creation_date=True) -> Tuple[QHBoxLayout, QComboBox, QLabel]:
     ret = [layout, combo, None]
     if creation_date:
         layout.addSpacing(15)
-        layout.addWidget(QLabel('Created: '))
+        layout.addWidget(QLabel("Created: "))
         created = QLabel()
         layout.addWidget(created)
         ret[-1] = created
@@ -203,10 +194,7 @@ def add_desc() -> QTextEdit:
     return desc
 
 
-def add_action(
-        text: str, parent,
-        connect_to: Callable = None) -> QAction:
-
+def add_action(text: str, parent, connect_to: Callable = None) -> QAction:
     action = QAction(text, parent)
     if connect_to is not None:
         action.triggered.connect(connect_to)
@@ -220,18 +208,17 @@ def add_button(text: str, connect_to: Callable) -> QPushButton:
 
 
 def add_projectboard_description(
-        left: int = 20,
-        right: int = 20) -> Tuple[QVBoxLayout, QPushButton, QTextEdit]:
-
+    left: int = 20, right: int = 20
+) -> Tuple[QVBoxLayout, QPushButton, QTextEdit]:
     vert_layout = QVBoxLayout()
     layout = QHBoxLayout()
     layout.setAlignment(Qt.AlignTop)
     layout.addSpacing(left)
 
-    edit = QPushButton('✍')
+    edit = QPushButton("✍")
     edit.setMaximumWidth(50)
 
-    layout.addWidget(QLabel('Description:'))
+    layout.addWidget(QLabel("Description:"))
 
     layout.addSpacing(right)
     vert_layout.addLayout(layout)

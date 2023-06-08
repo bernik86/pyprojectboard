@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2022 bernik86.
 #
-# This file is part of pyprojectboard 
+# This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify
@@ -36,35 +36,35 @@ from pylatex.package import Package
 from pylatex.table import Tabular
 from pylatex.utils import bold
 from pylatex.utils import NoEscape
+
 # pylint: enable=import-error
 
 
 def export(projectboard, generate_pdf=False):
-
-    filename = splitext(projectboard.get_metadata('filename'))[0]
+    filename = splitext(projectboard.get_metadata("filename"))[0]
     doc = Document(filename)
 
-    doc.packages.append(Package('progressbar'))
+    doc.packages.append(Package("progressbar"))
 
-    doc.preamble.append(Command('title', projectboard.get_metadata('name')))
-    author = projectboard.get_metadata('author')
+    doc.preamble.append(Command("title", projectboard.get_metadata("name")))
+    author = projectboard.get_metadata("author")
     if author:
-        doc.preamble.append(Command('author', 'Created by ' + author))
-    doc.preamble.append(Command('date', NoEscape(r'\today')))
-    cmd_abstract_title = r'\renewcommand{\abstractname}{Description}'
+        doc.preamble.append(Command("author", "Created by " + author))
+    doc.preamble.append(Command("date", NoEscape(r"\today")))
+    cmd_abstract_title = r"\renewcommand{\abstractname}{Description}"
     doc.preamble.append(NoEscape(cmd_abstract_title))
-    doc.append(NoEscape(r'\maketitle'))
+    doc.append(NoEscape(r"\maketitle"))
 
     class Abstract(Environment):
         pass
 
     desc = Abstract()
-    desc.append(Command('centering'))
-    desc.append(Command('large'))
-    desc.append(projectboard.get_metadata('description'))
+    desc.append(Command("centering"))
+    desc.append(Command("large"))
+    desc.append(projectboard.get_metadata("description"))
     doc.append(desc)
 
-    doc.append(NoEscape(r'\tableofcontents'))
+    doc.append(NoEscape(r"\tableofcontents"))
 
     project_summary(doc, projectboard)
     projects(doc, projectboard)
@@ -79,26 +79,22 @@ def export(projectboard, generate_pdf=False):
 
 
 def project_summary(doc, projectboard):
+    doc.append(Section("Summary"))
+    pb_config = ["filledcolor=red", "emptycolor=green", "width=5cm", "subdivisions=5"]
 
-    doc.append(Section('Summary'))
-    pb_config = ['filledcolor=red',
-                 'emptycolor=green',
-                 'width=5cm',
-                 'subdivisions=5']
-
-    cmd_pb_config = Command('progressbarchange', ', '.join(pb_config))
+    cmd_pb_config = Command("progressbarchange", ", ".join(pb_config))
     doc.append(cmd_pb_config)
-    tab = Tabular('c|c|c')
+    tab = Tabular("c|c|c")
     tab.add_hline()
     tab.add_hline()
-    tab.add_row(('Name', 'Progress', 'Duedate'))
+    tab.add_row(("Name", "Progress", "Duedate"))
     tab.add_hline()
     pids = projectboard.get_ids()
     for pid in pids:
         project = {}
         projectboard.project(pid, project)
-        cmd_prog = Command('progressbar', project['progress'] / 100)
-        tab.add_row((project['name'], cmd_prog, project['duedate']))
+        cmd_prog = Command("progressbar", project["progress"] / 100)
+        tab.add_row((project["name"], cmd_prog, project["duedate"]))
         tab.add_hline()
 
     tab.add_hline()
@@ -106,35 +102,39 @@ def project_summary(doc, projectboard):
 
 
 def projects(doc, projectboard):
-
-    doc.append(Section('Projects'))
+    doc.append(Section("Projects"))
     pids = projectboard.get_ids()
     for pid in pids:
         project = {}
         projectboard.project(pid, project)
-        doc.append(Subsection('Project: ' + project['name']))
-        doc.append(bold('Duedate: ' + project['duedate']))
+        doc.append(Subsection("Project: " + project["name"]))
+        doc.append(bold("Duedate: " + project["duedate"]))
         doc.append(HFill())
-        doc.append(bold('State: ' + project['state']))
+        doc.append(bold("State: " + project["state"]))
         doc.append(NewLine())
-        doc.append(bold('Description: '))
-        doc.append(project['description'])
-        tids = project['task_ids']
+        doc.append(bold("Description: "))
+        doc.append(project["description"])
+        tids = project["task_ids"]
         add_tasks(doc, projectboard, tids)
 
 
 def add_tasks(doc, projectboard, tids):
-
-    doc.append(Subsubsection('Tasks'))
+    doc.append(Subsubsection("Tasks"))
     itemize = Itemize()
     for tid in tids:
         task = {}
         projectboard.task(tid, None, task)
-        item = [task['name'], '\\hfill',
-                bold('Duedate: '), task['duedate'],
-                '\\\\',
-                bold('State: '), task['state'],
-                '\\\\',
-                bold('Description: '), task['description']]
-        itemize.add_item(NoEscape(''.join(item)))
+        item = [
+            task["name"],
+            "\\hfill",
+            bold("Duedate: "),
+            task["duedate"],
+            "\\\\",
+            bold("State: "),
+            task["state"],
+            "\\\\",
+            bold("Description: "),
+            task["description"],
+        ]
+        itemize.add_item(NoEscape("".join(item)))
     doc.append(itemize)

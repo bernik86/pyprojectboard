@@ -26,7 +26,6 @@ T = TypeVar("T")
 
 
 class OrderableDict(OrderedDict):
-
     def __init__(self):
         self.order = []
         super().__init__(self)
