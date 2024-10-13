@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 #
-# Copyright (c) 2022 bernik86.
+# Copyright (c) 2024 BerniK86.
 #
-# This file is part of pyprojectboard
+# This file is part of pyprojectboard 
 # (see https://github.com/bernik86/pyprojectboard).
 #
 # This program is free software: you can redistribute it and/or modify

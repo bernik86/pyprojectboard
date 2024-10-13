@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#! python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2022 bernik86.
+# Copyright (c) 2024 BerniK86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -19,26 +19,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
-import os
+
+# pylint: disable=missing-docstring
+
 
 # pylint: disable=import-error, no-name-in-module
-from PySide6.QtWidgets import QApplication
-from qt_material import apply_stylesheet
+# isort: split
+import os
 
-from pyprojectboard.qt_gui.qt_app import MainWindow
+# Import of QtWebEngineQuick needed to resolve the following warning:
+# Attribute Qt::AA_ShareOpenGLContexts must be set before QCoreApplication is created.
+from PySide6 import QtWebEngineQuick  # type: ignore  # pylint: disable=unused-import
+from PySide6.QtWidgets import QApplication  # type: ignore
+
+from gui.qt.main_window import MainWindow  # type: ignore
 
 # pylint: enable=import-error, no-name-in-module
 
 
 def main():
+    # Set environment variable to get rid of the following warning:
+    # QApplication: invalid style override 'kvantum' passed, ignoring it.
+    os.environ["QT_STYLE_OVERRIDE"] = "Fusion"
     app = QApplication()
-    file_path = os.path.dirname(__file__)
-    theme_fn = os.path.join(file_path, "pyprojectboard/qt_gui/theme.xml")
-    apply_stylesheet(app, theme=theme_fn)
     app.window = MainWindow()
     app.window.show()
     app.exec()
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    sys.exit(main())

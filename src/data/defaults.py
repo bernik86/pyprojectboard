@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2022 bernik86.
+# Copyright (c) 2024 BerniK86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -19,3 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+
+# pylint: disable=missing-docstring
+
+DEFAULT_STATES = ["Open", "Work-in-progress", "Halted", "Closed"]
+SETTINGS_FILE = "~/.config/pyprojectboard_dev/settings.json"
+DATA_DIR = "~/Documents/pyprojectboards/"
