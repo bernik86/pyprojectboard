@@ -59,7 +59,7 @@ link_bin () {
         echo "deactivate"
     } > "$BIN"
 
-    chown u+x "$BIN"
+    chmod u+x "$BIN"
 
     mkdir -p "$HOME"/.local/bin
     cd "$HOME"/.local/bin || exit 1
