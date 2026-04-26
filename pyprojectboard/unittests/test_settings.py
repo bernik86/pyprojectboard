@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -24,14 +24,14 @@
 import unittest
 
 # pylint: disable=import-error
-from data.settings import __set_default_settings__  # type: ignore
-from data.settings import append_to_setting
-from data.settings import get_setting
-from data.settings import get_settings_copy
-from data.settings import load_settings
-from data.settings import reset_to_default_settings
-from data.settings import save_settings
-from data.settings import set_setting
+from pyprojectboard.data.settings import __set_default_settings__  # type: ignore
+from pyprojectboard.data.settings import append_to_setting
+from pyprojectboard.data.settings import get_setting
+from pyprojectboard.data.settings import get_settings_copy
+from pyprojectboard.data.settings import load_settings
+from pyprojectboard.data.settings import reset_to_default_settings
+from pyprojectboard.data.settings import save_settings
+from pyprojectboard.data.settings import set_setting
 
 # pylint: enable=import-error
 

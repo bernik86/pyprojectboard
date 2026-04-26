@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -30,11 +30,11 @@ from datetime import datetime
 from tinydb import Query
 from tinydb import TinyDB
 
-from data.data import Projectboard  # type: ignore
-from data.data import create_default_item
-from data.data import generate_id
-from data.data import move_item_in_list_by_n
-from data.data import read_metadata
+from pyprojectboard.data.data import Projectboard  # type: ignore
+from pyprojectboard.data.data import create_default_item
+from pyprojectboard.data.data import generate_id
+from pyprojectboard.data.data import move_item_in_list_by_n
+from pyprojectboard.data.data import read_metadata
 
 # pylint: enable=import-error
 

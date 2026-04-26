@@ -1,7 +1,7 @@
 #! python
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -32,7 +32,7 @@ import os
 from PySide6 import QtWebEngineQuick  # type: ignore  # pylint: disable=unused-import
 from PySide6.QtWidgets import QApplication  # type: ignore
 
-from gui.qt.main_window import MainWindow  # type: ignore
+from pyprojectboard.gui.qt.main_window import MainWindow  # type: ignore
 
 # pylint: enable=import-error, no-name-in-module
 

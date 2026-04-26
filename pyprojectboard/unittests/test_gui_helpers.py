@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -21,6 +21,22 @@
 
 # pylint: disable=missing-docstring
 
-DEFAULT_STATES = ["Open", "Work-in-progress", "Halted", "Closed"]
-SETTINGS_FILE = "~/.config/pyprojectboard_dev/settings.json"
-DATA_DIR = "~/Documents/pyprojectboards/"
+import os
+import unittest
+
+# pylint: disable=import-error
+from pyprojectboard.gui.qt.main_window import convert_str_to_filename  # type: ignore
+
+# pylint: enable=import-error
+
+
+class TestGUIHelperFunctions(unittest.TestCase):
+
+    def test_1_convert_str_to_filename(self):
+        names = ["test.json", "test123", "test @3", "test1-11.jsob"]
+        clean_names = ["test.json", "test123.json", "test3.json", "test111.jsob.json"]
+        directory = "~/Documents/pyprojectboards"
+        directory = os.path.expanduser(directory)
+        for name, clean_name in zip(names, clean_names):
+            result = convert_str_to_filename(name)
+            self.assertEqual(result, os.path.join(directory, clean_name))

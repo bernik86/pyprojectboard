@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -45,11 +45,11 @@ from PySide6.QtWidgets import QTabWidget
 from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtWidgets import QWidget
 
-from data import settings  # type: ignore
-from data.data import Projectboard  # type: ignore
-from data.data import generate_id
-from data.data import read_metadata
-from data.state import StateInt  # type: ignore
+from pyprojectboard.data import settings  # type: ignore
+from pyprojectboard.data.data import Projectboard  # type: ignore
+from pyprojectboard.data.data import generate_id
+from pyprojectboard.data.data import read_metadata
+from pyprojectboard.data.state import StateInt  # type: ignore
 
 # pylint: enable=import-error
 # pylint: enable=no-name-in-module

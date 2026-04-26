@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2024 BerniK86.
+# Copyright (c) 2024-2026 bernik86.
 #
 # This file is part of pyprojectboard
 # (see https://github.com/bernik86/pyprojectboard).
@@ -35,7 +35,7 @@ from tinydb.middlewares import CachingMiddleware
 from tinydb.storages import JSONStorage
 from tinydb.storages import MemoryStorage
 
-from data import defaults  # type: ignore
+from . import defaults  # type: ignore
 
 # pylint: enable=import-error
 
