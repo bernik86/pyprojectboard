@@ -101,6 +101,7 @@ class MainWindow(QMainWindow):
         self.settings_page.btn_imp.clicked.connect(self.settings_import_clicked)
         self.settings_page.btn_ren.clicked.connect(self.rename_board)
         self.settings_page.btn_rem.clicked.connect(self.remove_board)
+        self.settings_page.pushButton_4.setVisible(False)
 
     def settings_add_clicked(self):
         text, ok_clicked = pb_name_dialog(self)
@@ -605,6 +606,9 @@ class Page(QStackedWidget):
                 self.__fill_task_list(children, wid)
 
             if parent is None:
+                self.widget.list_tasks.clear()
+                self.widget.list_tasks.update()
+                self.widget.list_tasks.repaint()
                 self.widget.list_tasks.addTopLevelItem(wid)
                 self.widget.list_tasks.expandItem(wid)
             else:
